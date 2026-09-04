@@ -12,12 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // ⭐ تفعيل TrustProxies
+        // ⭐ Trust Proxies
         $middleware->trustProxies(at: '*');
         
-        // ⭐ استثناء CSRF لمسار تسجيل الدخول (مؤقتاً)
+        // ⭐ استثناء CSRF لمسار تسجيل الدخول (مع * لتغطية جميع الإصدارات)
         $middleware->validateCsrfTokens(except: [
             'admin/login',
+            'admin/login/*',
+            'login',
+            'login/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
