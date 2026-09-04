@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# تنظيف الكاش
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 php artisan optimize:clear
 
-# تشغيل الهجرات (تجاهل الأخطاء)
 php artisan migrate --force || echo "Migration failed, continuing..."
 
-# إنشاء مستخدم أدمن (إذا لم يكن موجوداً)
+# ⭐ ربط مجلد التخزين
+php artisan storage:link || echo "Storage link already exists"
+
 php artisan tinker --execute="
 if(!\App\Models\User::where('email','admin@example.com')->exists()){
     \App\Models\User::create([
@@ -23,5 +23,8 @@ if(!\App\Models\User::where('email','admin@example.com')->exists()){
 }
 " || echo "User creation failed, continuing..."
 
-# تشغيل الخادم
+
+echo "SESSION_DOMAIN: $SESSION_DOMAIN"
+echo "SESSION_SECURE_COOKIE: $SESSION_SECURE_COOKIE"
+
 php artisan serve --host=0.0.0.0 --port=$PORT
