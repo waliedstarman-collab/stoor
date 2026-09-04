@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Str;
 
-$isProduction = app()->environment('production');
-
 return [
     'driver' => env('SESSION_DRIVER', 'database'),
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
@@ -16,12 +14,10 @@ return [
     'lottery' => [2, 100],
     'cookie' => env('SESSION_COOKIE', Str::slug(env('APP_NAME', 'laravel'), '_').'_session'),
     'path' => env('SESSION_PATH', '/'),
-
-    // ⭐ إجبار القيم الصحيحة في بيئة الإنتاج (Render)
-    'domain' => $isProduction ? '.onrender.com' : env('SESSION_DOMAIN', null),
-    'secure' => $isProduction ? true : env('SESSION_SECURE_COOKIE', false),
+    'domain' => env('SESSION_DOMAIN', null),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
     'http_only' => env('SESSION_HTTP_ONLY', true),
-    'same_site' => $isProduction ? 'lax' : env('SESSION_SAME_SITE', 'lax'),
+    'same_site' => env('SESSION_SAME_SITE', 'lax'),
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
     'serialization' => 'json',
 ];
