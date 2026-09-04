@@ -12,9 +12,16 @@ RUN apt-get update && apt-get install -y \
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# نسخ الملفات
+# إنشاء مجلد العمل
 WORKDIR /app
-RUN mkdir -p /app/bootstrap/cache && chmod -R 775 /app/bootstrap/cache
+
+# إنشاء مجلدات Laravel الأساسية ومنحها صلاحيات الكتابة
+RUN mkdir -p /app/bootstrap/cache \
+    && mkdir -p /app/storage/framework/{sessions,views,cache,testing} \
+    && mkdir -p /app/storage/logs \
+    && chmod -R 775 /app/bootstrap /app/storage
+
+# نسخ الملفات
 COPY . .
 
 # تثبيت الحزم (بدون scripts لتجنب الأخطاء)
