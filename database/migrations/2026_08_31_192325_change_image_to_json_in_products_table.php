@@ -9,24 +9,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // أولاً: تأكد من أن العمود موجود قبل التعديل
-        if (Schema::hasColumn('products', 'image')) {
-            // تحويل العمود إلى JSON (SQLite يدعم JSON)
-            Schema::table('products', function (Blueprint $table) {
-                $table->json('image')->nullable()->change();
-            });
-        } else {
-            // إذا لم يكن موجوداً، أنشئه
-            Schema::table('products', function (Blueprint $table) {
-                $table->json('image')->nullable();
-            });
-        }
+        // تحويل العمود إلى JSON باستخدام USING للـ PostgreSQL
+        DB::statement('ALTER TABLE products ALTER COLUMN image TYPE json USING image::json');
     }
 
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('image')->nullable()->change();
-        });
+        DB::statement('ALTER TABLE products ALTER COLUMN image TYPE text USING image::text');
     }
 };

@@ -15,17 +15,19 @@ chmod -R 777 storage/framework storage/logs
 # ربط التخزين
 php artisan storage:link || echo "Storage link already exists."
 
-# إنشاء جدول الجلسات (إذا لم يكن موجوداً)
+# إنشاء ملف هجرة جدول الجلسات (إذا لم يكن موجوداً)
 php artisan session:table || echo "Session table migration already exists."
+
+# تشغيل الهجرات (مع تجاهل الأخطاء الفردية)
 php artisan migrate --force || echo "Migration failed, continuing..."
 
-# إنشاء مستخدم أدمن
+# إنشاء مستخدم أدمن (إذا لم يكن موجوداً)
 php artisan tinker --execute="
 if(!\App\Models\User::where('email','admin@example.com')->exists()){
     \App\Models\User::create([
         'name'=>'Admin',
         'email'=>'admin@example.com',
-        'password'=>bcrypt('password')
+        'password'=>bcrypt('12345678')
     ]);
     echo '✅ Admin user created.';
 } else {
