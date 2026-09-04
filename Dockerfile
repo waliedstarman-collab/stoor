@@ -14,6 +14,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # نسخ الملفات
 WORKDIR /app
+RUN mkdir -p /app/bootstrap/cache && chmod -R 775 /app/bootstrap/cache
 COPY . .
 
 # تثبيت الحزم (بدون scripts لتجنب الأخطاء)
