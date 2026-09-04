@@ -1,15 +1,25 @@
 #!/bin/bash
 
+echo "🚀 Starting Laravel application..."
+
+# تنظيف الكاش
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
 php artisan optimize:clear
 
+# إنشاء مجلدات التخزين
+mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs
+chmod -R 777 storage/framework storage/logs
+
+# ربط التخزين
+php artisan storage:link || echo "Storage link already exists."
+
+# إنشاء جدول الجلسات (إذا لم يكن موجوداً)
+php artisan session:table || echo "Session table migration already exists."
 php artisan migrate --force || echo "Migration failed, continuing..."
 
-# ⭐ ربط مجلد التخزين
-php artisan storage:link || echo "Storage link already exists"
-
+# إنشاء مستخدم أدمن
 php artisan tinker --execute="
 if(!\App\Models\User::where('email','admin@example.com')->exists()){
     \App\Models\User::create([
@@ -23,8 +33,5 @@ if(!\App\Models\User::where('email','admin@example.com')->exists()){
 }
 " || echo "User creation failed, continuing..."
 
-
-echo "SESSION_DOMAIN: $SESSION_DOMAIN"
-echo "SESSION_SECURE_COOKIE: $SESSION_SECURE_COOKIE"
-
+echo "✅ Starting server on port $PORT..."
 php artisan serve --host=0.0.0.0 --port=$PORT
