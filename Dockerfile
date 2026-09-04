@@ -15,14 +15,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # إنشاء مجلد العمل
 WORKDIR /app
 
-# إنشاء مجلدات Laravel الأساسية ومنحها صلاحيات الكتابة
-RUN mkdir -p /app/bootstrap/cache \
-    && mkdir -p /app/storage/framework/{sessions,views,cache,testing} \
-    && mkdir -p /app/storage/logs \
-    && chmod -R 775 /app/bootstrap /app/storage
-
-# نسخ الملفات
+# نسخ الملفات (بدون مجلد vendor)
 COPY . .
+
+# إنشاء جميع مجلدات Laravel المطلوبة ومنحها صلاحيات 777 (تجنب مشاكل الكتابة)
+RUN mkdir -p /app/bootstrap/cache \
+    && mkdir -p /app/storage/framework \
+    && mkdir -p /app/storage/framework/sessions \
+    && mkdir -p /app/storage/framework/views \
+    && mkdir -p /app/storage/framework/cache \
+    && mkdir -p /app/storage/framework/testing \
+    && mkdir -p /app/storage/logs \
+    && chmod -R 777 /app/bootstrap/cache \
+    && chmod -R 777 /app/storage
 
 # تثبيت الحزم (بدون scripts لتجنب الأخطاء)
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=php --no-scripts
@@ -30,6 +35,7 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=php --
 # إعداد متغيرات البيئة الافتراضية
 ENV PORT=10000
 ENV APP_ENV=production
+ENV APP_DEBUG=false
 
 # فتح المنفذ
 EXPOSE $PORT
