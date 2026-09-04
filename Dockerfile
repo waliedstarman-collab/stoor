@@ -1,6 +1,6 @@
 FROM php:8.4-cli
 
-# تثبيت dependencies المطلوبة
+# تثبيت dependencies
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpq-dev \
@@ -12,13 +12,12 @@ RUN apt-get update && apt-get install -y \
 # تثبيت Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# إنشاء مجلد العمل
 WORKDIR /app
 
 # نسخ الملفات
 COPY . .
 
-# إنشاء جميع مجلدات Laravel المطلوبة ومنحها صلاحيات 777
+# إنشاء مجلدات التخزين
 RUN mkdir -p /app/bootstrap/cache \
     && mkdir -p /app/storage/framework/sessions \
     && mkdir -p /app/storage/framework/views \
@@ -28,17 +27,18 @@ RUN mkdir -p /app/bootstrap/cache \
     && chmod -R 777 /app/bootstrap/cache \
     && chmod -R 777 /app/storage
 
-# تثبيت الحزم (بدون scripts)
+# تثبيت الحزم
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=php --no-scripts
 
-# إعداد متغيرات البيئة الافتراضية
+# ⭐ نسخ start.sh وجعله قابلاً للتنفيذ
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 ENV PORT=10000
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 
-# فتح المنفذ
 EXPOSE $PORT
 
-# ⭐ استخدام سكربت البدء
-RUN chmod +x start.sh
-CMD ["/bin/bash", "start.sh"]
+# ⭐ استخدام start.sh كأمر التشغيل
+CMD ["/bin/bash", "/app/start.sh"]
