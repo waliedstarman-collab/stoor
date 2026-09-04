@@ -12,7 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // ⭐ تفعيل TrustProxies
         $middleware->trustProxies(at: '*');
+        
+        // ⭐ استثناء CSRF لمسار تسجيل الدخول (مؤقتاً)
+        $middleware->validateCsrfTokens(except: [
+            'admin/login',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(
