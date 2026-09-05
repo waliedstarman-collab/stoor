@@ -12,12 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // ثقة بالـ Proxy لـ HTTPS
         $middleware->trustProxies(at: '*');
         
-        // استثناء CSRF لمسار تسجيل الدخول
+        // ⭐ استثناء CSRF لجميع طلبات Livewire و تسجيل الدخول (للتشخيص)
         $middleware->validateCsrfTokens(except: [
             'admin/login',
+            'admin/login/*',
+            'livewire/*',
+            'livewire-*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
