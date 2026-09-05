@@ -6,7 +6,11 @@ echo "🚀 Starting Laravel application..."
 php artisan config:clear
 php artisan cache:clear
 php artisan view:clear
+php artisan route:clear
 php artisan optimize:clear
+
+# توليد مفتاح التطبيق (للتأكد من أن APP_KEY صحيح)
+php artisan key:generate --force
 
 # إنشاء مجلدات التخزين
 mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs
@@ -15,19 +19,16 @@ chmod -R 777 storage/framework storage/logs
 # ربط التخزين
 php artisan storage:link || echo "Storage link already exists."
 
-# إنشاء ملف هجرة جدول الجلسات (إذا لم يكن موجوداً)
-php artisan session:table || echo "Session table migration already exists."
-
-# تشغيل الهجرات (مع تجاهل الأخطاء الفردية)
+# تشغيل الهجرات
 php artisan migrate --force || echo "Migration failed, continuing..."
 
-# إنشاء مستخدم أدمن (إذا لم يكن موجوداً)
+# إنشاء مستخدم أدمن
 php artisan tinker --execute="
 if(!\App\Models\User::where('email','admin@example.com')->exists()){
     \App\Models\User::create([
         'name'=>'Admin',
         'email'=>'admin@example.com',
-        'password'=>bcrypt('12345678')
+        'password'=>bcrypt('password')
     ]);
     echo '✅ Admin user created.';
 } else {
