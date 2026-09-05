@@ -12,14 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->trustProxies(at: '*');
-        
-        // ⭐ استثناء CSRF لجميع طلبات Livewire و تسجيل الدخول (للتشخيص)
-        $middleware->validateCsrfTokens(except: [
-            'admin/login',
-            'admin/login/*',
-            'livewire/*',
-            'livewire-*',
+        // ⭐ تسجيل Middleware مخصص للتحقق من صلاحية Admin
+        $middleware->alias([
+            'admin.access' => \App\Http\Middleware\AdminAccessMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
