@@ -1,40 +1,26 @@
 #!/bin/bash
 
+set -e
+
 echo "🚀 Starting Laravel application..."
 
-# تنظيف الكاش
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan route:clear
-php artisan optimize:clear
+# إنشاء مجلدات Laravel الضرورية
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/views
+mkdir -p storage/framework/cache/data
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
 
-# توليد مفتاح التطبيق (للتأكد من أن APP_KEY صحيح)
-php artisan key:generate --force
+chmod -R 777 storage bootstrap/cache
 
-# إنشاء مجلدات التخزين
-mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs
-chmod -R 777 storage/framework storage/logs
+# إنشاء رابط storage
+php artisan storage:link || true
 
-# ربط التخزين
-php artisan storage:link || echo "Storage link already exists."
+# تشغيل migrations
+echo "🗄️ Running migrations..."
+php artisan migrate --force
 
-# تشغيل الهجرات
-php artisan migrate --force || echo "Migration failed, continuing..."
+echo "✅ Laravel is ready."
 
-# إنشاء مستخدم أدمن
-php artisan tinker --execute="
-if(!\App\Models\User::where('email','admin@example.com')->exists()){
-    \App\Models\User::create([
-        'name'=>'Admin',
-        'email'=>'admin@example.com',
-        'password'=>bcrypt('password')
-    ]);
-    echo '✅ Admin user created.';
-} else {
-    echo '✅ Admin user already exists.';
-}
-" || echo "User creation failed, continuing..."
-
-echo "✅ Starting server on port $PORT..."
-php artisan serve --host=0.0.0.0 --port=$PORT
+# تشغيل Laravel
+php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"
