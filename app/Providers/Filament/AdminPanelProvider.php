@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
         ])
         // ... باقي الإعدادات كما هي
         ->authMiddleware([
-            Authenticate::class,
+           // Authenticate::class,
         ]);
 }
 }
