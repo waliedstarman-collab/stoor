@@ -12,6 +12,13 @@ mkdir -p bootstrap/cache
 
 chmod -R 777 storage bootstrap/cache
 
+# تنظيف الكاش (ضروري بعد تغيير الإعدادات)
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+php artisan optimize:clear
+
 # إنشاء رابط storage
 php artisan storage:link || true
 
@@ -19,6 +26,7 @@ php artisan storage:link || true
 echo "🗄️ Running migrations..."
 php artisan migrate --force
 
+# التحقق من وجود المستخدم ومنحه صلاحية (باستخدام middleware، لكننا نتركه هنا للتأكد)
 php artisan tinker --execute="
 \$user = App\Models\User::where('email', 'admin@example.com')->first();
 if (!\$user) {
@@ -31,32 +39,7 @@ if (!\$user) {
 } else {
     echo '✅ Admin user already exists.';
 }
-
-// ⭐ منح صلاحية الوصول إلى Filament Admin (هذا هو الحل)
-try {
-    // محاولة منح الصلاحية باستخدام Spatie Permission (في حالة استخدامه)
-    \$user->givePermissionTo('access_admin');
-    echo ' 🔑 Admin access granted via Spatie.';
-} catch (\Exception \$e) {
-    // إذا لم تكن حزمة Spatie مثبتة، نستخدم الطريقة الافتراضية في Filament
-    try {
-        // محاولة منح الصلاحية باستخدام Gate (الطريقة الافتراضية في Filament)
-        \$user->allow('access_admin');
-        echo ' 🔑 Admin access granted via Gate.';
-    } catch (\Exception \$e) {
-        // إذا لم تنجح أي من الطريقتين، نضبط المستخدم كـ 'super_admin' (في بعض الإصدارات)
-        try {
-            \$user->assignRole('super_admin');
-            echo ' 🔑 Admin access granted via Role.';
-        } catch (\Exception \$e) {
-            echo ' ⚠️ Could not grant admin access automatically. Please check Filament permissions.';
-        }
-    }
-}
-" || echo "⚠️ User check/update failed."
-
-echo ""
-
+" || echo "⚠️ User check failed."
 
 echo "✅ Laravel is ready."
 
