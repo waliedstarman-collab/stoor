@@ -27,9 +27,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\URL::forceScheme('https');
     }
 
-    // تعريف Gate للسماح لأي مستخدم مسجل بالدخول إلى لوحة التحكم
-    Gate::define('viewAdmin', function ($user) {
-        return true;
+     Gate::define('view_admin', function ($user) {
+        return true; // السماح لأي مستخدم مسجل
     });
 }
 }
