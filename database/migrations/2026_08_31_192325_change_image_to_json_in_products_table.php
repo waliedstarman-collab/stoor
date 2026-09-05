@@ -9,12 +9,34 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // تحويل العمود إلى JSON باستخدام USING للـ PostgreSQL
-        DB::statement('ALTER TABLE products ALTER COLUMN image TYPE json USING image::json');
+        if (!Schema::hasColumn('products', 'image')) {
+            return;
+        }
+
+        $driver = DB::getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: تحويل العمود إلى JSON باستخدام USING
+            DB::statement('ALTER TABLE products ALTER COLUMN image TYPE json USING image::json');
+        } elseif ($driver === 'sqlite') {
+            // SQLite: لا يدعم تغيير نوع العمود مباشرة، لكننا لا نحتاج إلى تغييره
+            // لأن SQLite يخزن JSON كنص، وسيظل يعمل مع `$casts = ['image' => 'array']`.
+            // لذا نتركه كما هو.
+            // يمكننا إضافة تعليق أو تنبيه.
+        }
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE products ALTER COLUMN image TYPE text USING image::text');
+        if (!Schema::hasColumn('products', 'image')) {
+            return;
+        }
+
+        $driver = DB::getDriverName();
+
+        if ($driver === 'pgsql') {
+            DB::statement('ALTER TABLE products ALTER COLUMN image TYPE text USING image::text');
+        }
+        // SQLite: لا حاجة لعمل شيء في down
     }
 };
