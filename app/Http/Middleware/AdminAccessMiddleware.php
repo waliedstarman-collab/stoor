@@ -9,7 +9,7 @@ class AdminAccessMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        // السماح لأي مستخدم مسجل دخول (للتجربة)
+        // السماح لأي مستخدم مسجل الدخول (بدون التحقق من البريد)
         if (auth()->check()) {
             return $next($request);
         }
