@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login() // ⭐ مهم جداً
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -54,8 +54,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
-                'admin.access', // ⭐ إضافة Middleware للتحقق من صلاحية Admin
+                Authenticate::class, // ⭐ هذا هو المطلوب فقط
             ]);
     }
 }
