@@ -19,18 +19,44 @@ php artisan storage:link || true
 echo "🗄️ Running migrations..."
 php artisan migrate --force
 
-# 🔍 التحقق من المستخدم (إضافة جديدة)
-echo "🔍 Checking user admin@example.com..."
 php artisan tinker --execute="
 \$user = App\Models\User::where('email', 'admin@example.com')->first();
-if (\$user) {
-    echo '✅ User found: ' . \$user->email;
-    echo ' 🆔 ID: ' . \$user->id;
-    echo ' 🔑 Has Filament admin access? ' . (\$user->can('access_admin') ? 'Yes' : 'No');
+if (!\$user) {
+    \$user = App\Models\User::create([
+        'name' => 'Admin',
+        'email' => 'admin@example.com',
+        'password' => bcrypt('password')
+    ]);
+    echo '✅ Admin user created.';
 } else {
-    echo '❌ User not found';
+    echo '✅ Admin user already exists.';
 }
-"
+
+// ⭐ منح صلاحية الوصول إلى Filament Admin (هذا هو الحل)
+try {
+    // محاولة منح الصلاحية باستخدام Spatie Permission (في حالة استخدامه)
+    \$user->givePermissionTo('access_admin');
+    echo ' 🔑 Admin access granted via Spatie.';
+} catch (\Exception \$e) {
+    // إذا لم تكن حزمة Spatie مثبتة، نستخدم الطريقة الافتراضية في Filament
+    try {
+        // محاولة منح الصلاحية باستخدام Gate (الطريقة الافتراضية في Filament)
+        \$user->allow('access_admin');
+        echo ' 🔑 Admin access granted via Gate.';
+    } catch (\Exception \$e) {
+        // إذا لم تنجح أي من الطريقتين، نضبط المستخدم كـ 'super_admin' (في بعض الإصدارات)
+        try {
+            \$user->assignRole('super_admin');
+            echo ' 🔑 Admin access granted via Role.';
+        } catch (\Exception \$e) {
+            echo ' ⚠️ Could not grant admin access automatically. Please check Filament permissions.';
+        }
+    }
+}
+" || echo "⚠️ User check/update failed."
+
+echo ""
+
 
 echo "✅ Laravel is ready."
 
