@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "🚀 Starting Laravel application..."
@@ -19,6 +18,19 @@ php artisan storage:link || true
 # تشغيل migrations
 echo "🗄️ Running migrations..."
 php artisan migrate --force
+
+# 🔍 التحقق من المستخدم (إضافة جديدة)
+echo "🔍 Checking user admin@example.com..."
+php artisan tinker --execute="
+\$user = App\Models\User::where('email', 'admin@example.com')->first();
+if (\$user) {
+    echo '✅ User found: ' . \$user->email;
+    echo ' 🆔 ID: ' . \$user->id;
+    echo ' 🔑 Has Filament admin access? ' . (\$user->can('access_admin') ? 'Yes' : 'No');
+} else {
+    echo '❌ User not found';
+}
+"
 
 echo "✅ Laravel is ready."
 
